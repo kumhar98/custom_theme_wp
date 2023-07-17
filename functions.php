@@ -205,3 +205,258 @@ function custom_field_option_callback() {
     <?php
 }
 
+
+
+
+
+
+
+
+function custom_post_type() {
+    // Set UI labels for Custom Post Type
+        $labels = array(
+            'name'                => _x( 'Movies', 'Post Type General Name', 'twentytwentyone' ),
+            'singular_name'       => _x( 'Movie', 'Post Type Singular Name', 'twentytwentyone' ),
+            'menu_name'           => __( 'Movies', 'twentytwentyone' ),
+            'parent_item_colon'   => __( 'Parent Movie', 'twentytwentyone' ),
+            'all_items'           => __( 'All Movies', 'twentytwentyone' ),
+            'view_item'           => __( 'View Movie', 'twentytwentyone' ),
+            'add_new_item'        => __( 'Add New Movie', 'twentytwentyone' ),
+            'add_new'             => __( 'Add New', 'twentytwentyone' ),
+            'edit_item'           => __( 'Edit Movie', 'twentytwentyone' ),
+            'update_item'         => __( 'Update Movie', 'twentytwentyone' ),
+            'search_items'        => __( 'Search Movie', 'twentytwentyone' ),
+            'not_found'           => __( 'Not Found', 'twentytwentyone' ),
+            'not_found_in_trash'  => __( 'Not found in Trash', 'twentytwentyone' ),
+            
+
+           
+        );
+          
+    // Set other options for Custom Post Type
+          
+        $args = array(
+            'label'               => __( 'movies', 'twentytwentyone' ),
+            'description'         => __( 'Movie news and reviews', 'twentytwentyone' ),
+            'labels'              => $labels,
+            'supports'            => array( 'title', 'editor', 'excerpt', 'author', 'thumbnail', 'comments', 'revisions', 'custom-fields', ),
+            'hierarchical'        => false,
+            'public'              => true,
+            'show_ui'             => true,
+            'show_in_menu'        => true,
+            'show_in_nav_menus'   => true,
+            'show_in_admin_bar'   => true,
+            'menu_position'       => 5,
+            'can_export'          => true,
+            'has_archive'         => true,
+            'exclude_from_search' => false,
+            'publicly_queryable'  => true,
+            'capability_type'     => 'post',
+            'show_in_rest' => true,
+            'menu_icon' => 'dashicons-format-video',
+
+
+
+           
+
+      
+        );
+          
+        // Registering your Custom Post Type
+        register_post_type( 'movies', $args );
+      
+    }
+      
+  
+    add_action( 'init', 'custom_post_type');
+
+
+function register_custom_taxonomy()
+{
+    $labels = array(
+        'name'              => _x('Locations', 'taxonomy general name'),
+        'singular_name'     => _x('Location','taxonomy singular name'),
+        'search_items'      => __('Search Location'),
+        'all_items'         => __('All Location'),
+        'parent_item'       => __('Parent Location'),
+        'parent_item_colon' => __('Parent Location:'),
+        'edit_item'         => __('Edit Location'),
+        'update_item'       => __('Update Location'),
+        'add_new_item'      => __('Add New Location'),
+        'new_item_name'     => __('New Location Name'),
+        'menu_name'         => __('Locations'),
+    );
+
+    $args = array(
+        'hierarchical'      => true, // make it hierarchical (like categories)
+        'labels'            => $labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'show_in_rest' => true,
+        'rewrite'    => array('slug' => 'locations'),
+        'meta_box_cb' => 'category_add_form_fields_callback', // Custom callback for meta box
+    );
+
+    register_taxonomy('locations', 'movies', $args); // Register Taxonomy
+}
+add_action('init', 'register_custom_taxonomy');
+
+function register_tag_taxonomy()
+{
+    $labels = array(
+        'name'              => _x('home', 'taxonomy general name'),
+        'singular_name'     => _x('home','taxonomy singular name'),
+        'search_items'      => __('Search home'),
+        'all_items'         => __('All home'),
+        'parent_item'       => __('Parent home'),
+        'parent_item_colon' => __('Parent home:'),
+        'edit_item'         => __('Edit home'),
+        'update_item'       => __('Update home'),
+        'add_new_item'      => __('Add New home'),
+        'new_item_name'     => __('New home Name'),
+        'menu_name'         => __('home'),
+    );
+
+    $args = array(
+        'hierarchical'      => true, // make it hierarchical (like categories)
+        'labels'            => $labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,
+        'query_var'         => true,
+        'show_in_rest' => true,
+        'meta_box_cb' => 'home_add_form_fields_callback', // Custom callback for meta box
+
+        'rewrite'    => array('slug' => 'homes'),
+
+    );
+
+    register_taxonomy('homes', 'movies', $args); // Register Taxonomy
+}
+
+add_action('init', 'register_tag_taxonomy');
+
+
+
+
+// ****************this code in theme custom plugin
+
+   
+// this code add image option custom texonomy
+function category_add_form_fields_callback()
+{
+	$image_id = null;
+?>
+
+	<div id="category_custom_image"></div>
+	<input type="hidden" id="category_custom_image_url" name="category_custom_image_url">
+	<div style="margin-bottom: 20px;">
+		<span>Category Image </span>
+		<a href="#" class="button custom-button-upload" id="custom-button-upload">Upload image</a>
+		<a href="#" class="button custom-button-remove" id="custom-button-remove" style="display: none">Remove image</a>
+	</div>
+
+<?php
+}
+add_action( 'category_add_form_fields', 'category_add_form_fields_callback' );
+add_action( 'location_add_form_fields', 'category_add_form_fields_callback' );
+add_action( 'home_add_form_fields', 'category_add_form_fields_callback' );
+
+
+
+add_action('admin_enqueue_scripts', 'admin_enqueue_scripts_callback');
+function admin_enqueue_scripts_callback()
+{
+
+	// WordPress media uploader scripts
+	if (!did_action('wp_enqueue_media')) {
+		wp_enqueue_media();
+	}
+	// our uploader.js 
+	wp_enqueue_script('uploaderjs', get_stylesheet_directory_uri() . '/uploader.js', array(), "1.0", true);
+}
+
+
+
+
+
+
+function custom_create_term_callback($term_id) {
+    // add term meta data
+    add_term_meta( 
+        $term_id, 
+        'term_image',   
+        esc_url($_REQUEST['category_custom_image_url'])
+    );
+    
+}
+add_action( 'create_term', 'custom_create_term_callback' );
+
+function category_edit_form_fields_callback($ttObj, $taxonomy) {
+
+    $term_id = $ttObj->term_id;
+    $image = '';
+    $image = get_term_meta( $term_id, 'term_image', true );
+
+    ?>
+    <tr class="form-field term-image-wrap">
+      <th scope="row"><label for="image">Image</label></th>
+	<td>
+        <?php if ( $image ): ?>
+        <span id="category_custom_image">
+           <img src="<?php echo $image; ?>" style="width: 100%"/>
+        </span>
+        <input 
+           type="hidden" 
+           id="category_custom_image_url" 
+           name="category_custom_image_url">
+                
+        <span>
+           <a href="#" 
+             class="button custom-button-upload" 
+             id="custom-button-upload">Update image</a>
+           <!-- <a href="#" class="button custom-button-remove">Remove image</a>                     -->
+        </span>
+        <?php else: ?>
+        <span id="category_custom_image"></span>
+        <input 
+            type="hidden" 
+            id="category_custom_image_url" 
+            name="category_custom_image_url">
+        <span>
+           <a href="#" 
+              class="button custom-button-upload" 
+              id="custom-button-upload">Upload image</a>
+           <a href="#" 
+              class="button custom-button-remove" 
+              style="display: none">Remove image</a>
+        </span>
+        <?php endif; ?>
+        </td>
+    </tr>
+        
+    <?php
+    
+}
+
+add_action ( 'location_edit_form_fields', 'category_edit_form_fields_callback', 10, 2 );
+function edit_term_callback($term_id) {
+    $image = '';
+    $image = get_term_meta( $term_id, 'term_image' );
+
+    if ( $image )
+    update_term_meta( 
+        $term_id, 
+        'term_image', 
+        esc_url( $_POST['category_custom_image_url']) );
+
+    else
+    add_term_meta( 
+        $term_id, 
+        'term_image', 
+        esc_url( $_POST['category_custom_image_url']) );
+
+}
+add_action( 'edit_term', 'edit_term_callback' );
+
+?>
